@@ -1,0 +1,59 @@
+import java.io.*;
+import java.sql.*;
+
+public class Main {
+    public static void main(String[] args) throws ClassNotFoundException{
+
+        String url = "jdbc:mysql://localhost:3306/MyDatabase";
+        String root = "root";
+        String password = "akash098";
+        String withdrawQuery = "UPDATE accounts SET balance = balance - ? WHERE account_number = ?";
+        String depositQuery = "UPDATE accounts SET balance = balance + ? WHERE account_number = ?";
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            System.out.println("Database Connected Successfully !!!");
+        }
+        catch (ClassNotFoundException e) {
+            System.out.printf(e.getMessage());
+        }
+
+        try {
+            Connection con = DriverManager.getConnection(url, root, password);
+            System.out.println("Connection Established Successfully !!!");
+
+            con.setAutoCommit(false);
+
+            try {
+                PreparedStatement withdrawStatement = con.prepareStatement(withdrawQuery);
+                PreparedStatement depositStatement = con.prepareStatement(depositQuery);
+                withdrawStatement.setDouble(1, 500.00);
+                withdrawStatement.setString(2, "acc_123");
+                depositStatement.setDouble(1, 500.00);
+                depositStatement.setString(2, "acc_123876");
+                int rowsAffectedWithdraw = withdrawStatement.executeUpdate();
+                int rowsAffectedDeposit = depositStatement.executeUpdate();
+
+                if(rowsAffectedWithdraw > 0 && rowsAffectedDeposit > 0) {
+                    con.commit();
+                    System.out.println("Transaction Complete Successfully !!!");
+                }
+                else {
+                    con.rollback();
+                    System.out.println("Transaction Failed...");
+                }
+            }
+
+            catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+
+            con.close();
+            System.out.println();
+            System.out.println("Connection Closed Successfully !!!");
+        }
+        catch(SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}
