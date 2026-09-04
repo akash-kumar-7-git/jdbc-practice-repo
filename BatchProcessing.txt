@@ -1,0 +1,109 @@
+import java.io.*;
+import java.sql.*;
+
+public class Main {
+    public static void main(String[] args) throws ClassNotFoundException{
+
+        String url = "jdbc:mysql://localhost:3306/MyDatabase";
+        String root = "root";
+        String password = "akash098";
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            System.out.println("Database Connected Successfully !!!");
+        }
+        catch (ClassNotFoundException e) {
+            System.out.printf(e.getMessage());
+        }
+
+        try {
+            Connection con = DriverManager.getConnection(url, root, password);
+            System.out.println("Connection Established Successfully !!!");
+
+            con.setAutoCommit(false);
+
+            Statement stmt = con.createStatement();
+            stmt.addBatch("INSERT INTO employees(Name, Job_Title, Salary) VALUES('Khushi', 'Hr Manager', 78000)");
+            stmt.addBatch("INSERT INTO employees(Name, Job_Title, Salary) VALUES('Manu', 'Collector', 71000)");
+            stmt.addBatch("INSERT INTO employees(Name, Job_Title, Salary) VALUES('Shanvi', 'Teacher', 86000)");
+            int[] batchResult = stmt.executeBatch();
+            con.commit();
+            System.out.println("Batch Executed Successfully !!!");
+
+            con.close();
+            System.out.println();
+            System.out.println("Connection Closed Successfully !!!");
+        }
+        catch(SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}
+
+
+
+
+import java.io.*;
+import java.sql.*;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) throws ClassNotFoundException{
+
+        String url = "jdbc:mysql://localhost:3306/MyDatabase";
+        String root = "root";
+        String password = "akash098";
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            System.out.println("Database Connected Successfully !!!");
+        }
+        catch (ClassNotFoundException e) {
+            System.out.printf(e.getMessage());
+        }
+
+        try {
+            Connection con = DriverManager.getConnection(url, root, password);
+            System.out.println("Connection Established Successfully !!!");
+
+            con.setAutoCommit(false);
+
+            String query = ("INSERT INTO employees(Name, Job_Title, Salary) VALUES(?, ?, ?)");
+            PreparedStatement ps = con.prepareStatement(query);
+            Scanner sc = new Scanner(System.in);
+
+            while(true) {
+                System.out.print("Name: ");
+                String name = sc.nextLine();
+                System.out.print("Job Title: ");
+                String jobTitle = sc.nextLine();
+                System.out.print("Salary: ");
+                double salary = sc.nextDouble();
+                sc.nextLine();
+
+                ps.setString(1, name);
+                ps.setString(2, jobTitle);
+                ps.setDouble(3, salary);
+                ps.addBatch();
+
+                System.out.println("Would you want to add more values (Y/N): ");
+                String decision = sc.nextLine();
+
+                if(decision.toUpperCase().equals("N")) {
+                    break;
+                }
+            }
+
+            int[] batchResult = ps.executeBatch();
+            con.commit();
+            System.out.println("Batch Executed Successfully !!!");
+
+//            con.close();
+            System.out.println();
+            System.out.println("Connection Closed Successfully !!!");
+        }
+        catch(SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}
